@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Boricua 波多黎各中文旅行 Agent：对话式生成可调整、可比价、可执行的逐日行程。" />
+    <meta name="author" content="Fuyang Fan" />
+    <title>Boricua · 波多黎各旅行 Agent — by Fuyang Fan</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%2307565c'/%3E%3Cpath d='M6 9h20v3H6zM6 15h20v3H6zM6 21h20v3H6z' fill='%23d7f8ee'/%3E%3C/svg%3E" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <button class="brand" id="brandButton" aria-label="回到首页">
+        <span class="brand-mark"><span></span></span>
+        <span class="brand-copy"><strong>Boricua</strong><small>PUERTO RICO AGENT</small></span>
+      </button>
+      <nav class="top-nav" aria-label="主导航">
+        <button data-scroll="why">为什么选这里</button>
+        <button data-scroll="how">怎么规划</button>
+        <button data-scroll="knowledge">实测指南</button>
+      </nav>
+      <div class="header-actions">
+        <button class="ghost-button history-button" id="historyButton">我的行程</button>
+        <button class="primary-button compact start-planning">开始规划</button>
+      </div>
+    </header>
+
+    <main>
+      <section id="welcomeView">
+        <section class="hero">
+          <div class="hero-copy">
+            <div class="eyebrow"><span class="pulse-dot"></span>专为在美华人设计的旅行 Agent</div>
+            <h1>把波多黎各，<br /><em>装进一段对话。</em></h1>
+            <p class="hero-subtitle">从出发城市、预算到你偏爱的旅行节奏，几分钟生成可调整、可比价、可执行的海岛行程。</p>
+            <div class="hero-cta-row">
+              <button class="primary-button hero-button start-planning">生成我的行程 <span>↗</span></button>
+              <button class="text-button" id="previewButton"><span class="play-dot">▶</span> 先看示例行程</button>
+            </div>
+            <div class="trust-note">
+              <span class="shield-icon">✓</span>
+              <div><strong>美国境内目的地提示</strong><small>波多黎各属于美国领地；非美国公民仍应按个人身份核验所需证件。</small></div>
+            </div>
+          </div>
+
+          <div class="hero-scene" aria-label="加勒比海岛行程预览插画">
+            <div class="sun"></div>
+            <div class="cloud cloud-one"></div>
+            <div class="cloud cloud-two"></div>
+            <div class="mountain mountain-back"></div>
+            <div class="mountain mountain-front"></div>
+            <div class="ocean-line"></div>
+            <div class="island"></div>
+            <div class="palm palm-one"><i></i><b></b><b></b><b></b></div>
+            <div class="palm palm-two"><i></i><b></b><b></b><b></b></div>
+            <div class="floating-card itinerary-preview">
+              <div class="preview-head"><span>你的 5 日行程</span><span class="ready-pill">已就绪</span></div>
+              <div class="preview-route">
+                <span class="route-dot active"></span><div><small>DAY 1</small><strong>圣胡安老城</strong></div><span class="route-time">慢游</span>
+                <span class="route-line"></span>
+                <span class="route-dot"></span><div><small>DAY 2</small><strong>埃尔云克雨林</strong></div><span class="route-time">深度</span>
+                <span class="route-line"></span>
+                <span class="route-dot coral"></span><div><small>DAY 3</small><strong>Culebra 跳岛</strong></div><span class="route-time">精选</span>
+              </div>
+              <div class="preview-budget"><div><small>预估人均</small><strong>$1,286</strong></div><button class="mini-arrow" aria-label="打开行程">↗</button></div>
+            </div>
+            <div class="floating-card local-tip"><span>☀</span><div><small>本地实测建议</small><strong>Flamenco Beach 早上更舒服</strong></div></div>
+            <div class="coqui">♪</div>
+          </div>
+        </section>
+
+        <section class="proof-strip" id="why">
+          <div><strong>1 个对话</strong><span>替代零散攻略筛选</span></div>
+          <div><strong>5 类预订</strong><span>机酒、项目与交通集中比价</span></div>
+          <div><strong>中文陪伴</strong><span>从出发前覆盖到行程中</span></div>
+          <div><strong>官方跳转</strong><span>不在站内代收交易资金</span></div>
+        </section>
+
+        <section class="section-block" id="how">
+          <div class="section-heading">
+            <div><span class="kicker">HOW IT WORKS</span><h2>少做攻略，多享受海岛。</h2></div>
+            <p>Agent 先理解你的限制和偏好，再把路线、预算与预订入口组织成一份能直接执行的行程。</p>
+          </div>
+          <div class="steps-grid">
+            <article class="step-card featured"><span class="step-index">01</span><div class="step-visual chat-visual"><span>从纽约出发，5 天，想看生物湾</span><span>预算大约 $1,500</span><i></i></div><h3>说出你的旅行想法</h3><p>日期、人数、预算与偏好都可以自然表达，也可以点击快捷选项。</p></article>
+            <article class="step-card"><span class="step-index">02</span><div class="step-visual route-visual"><b>San Juan</b><i></i><b>Ceiba</b><i></i><b>Culebra</b></div><h3>获得可执行路线</h3><p>按天呈现景点、交通、用餐和停留时长，路线冲突提前提醒。</p></article>
+            <article class="step-card"><span class="step-index">03</span><div class="step-visual compare-visual"><span><small>生物湾</small><strong>$68</strong></span><span><small>精品小团</small><strong>$86</strong></span></div><h3>集中比较再预订</h3><p>关键项目展示价格、时间与退改条件，确认后跳转官方渠道。</p></article>
+          </div>
+        </section>
+
+        <section class="engine-section">
+          <div class="section-heading">
+            <div><span class="kicker">AGENT ENGINE</span><h2>生成，而不是检索。</h2></div>
+            <p>这份行程不是固定模板：每一条路线都由引擎根据你的输入现场计算。</p>
+          </div>
+          <div class="engine-grid">
+            <article><span class="engine-icon">◐</span><h3>月相与天气推理</h3><p>生物湾是否值得去、安排在哪天，由出发日期的真实月相计算决定；雨天自动生成室内替代路线。</p></article>
+            <article><span class="engine-icon">◍</span><h3>预算拟合模型</h3><p>机票按出发城市估算，住宿按档位试算，超预算时自动降档并如实提示差额，而不是假装更便宜。</p></article>
+            <article><span class="engine-icon">↻</span><h3>对话式实时重排</h3><p>“第二天换海滩”“降低预算 150”都会真正改写行程并同步预算与预订清单，而不是只回一句话。</p></article>
+          </div>
+        </section>
+
+        <section class="knowledge-section" id="knowledge">
+          <div class="knowledge-copy"><span class="kicker light">LOCAL KNOWLEDGE</span><h2>好的建议，来自去过的人。</h2><p>通用模型告诉你“有什么”，实测知识库更关心“值不值得、什么时候去、哪里容易踩坑”。</p><button class="light-button start-planning">用实测攻略规划</button></div>
+          <div class="knowledge-cards">
+            <article><span class="topic-tag">渡轮</span><h3>去离岛，不是从圣胡安码头出发</h3><p>客运航线从 Ceiba 前往 Culebra 与 Vieques，建议提前一小时抵达。</p><small>信息已按官方路线校正</small></article>
+            <article><span class="topic-tag">生物湾</span><h3>月相会影响发光体验</h3><p>Agent 会结合日期、地点与团型安排，而不是只推荐最热门选项。</p><small>体验条件进入行程判断</small></article>
+          </div>
+        </section>
+
+        <footer class="site-footer">
+          <div class="footer-brand"><span class="brand-mark"><span></span></span><div><strong>Boricua</strong><small>PUERTO RICO TRAVEL AGENT</small></div></div>
+          <p>Product design &amp; engineering by <b>Fuyang Fan</b> · 原生 HTML / CSS / JavaScript 构建，无框架、无构建步骤、无外部依赖。</p>
+          <div class="footer-links"><span>© 2026 Fuyang Fan</span><span>·</span><a href="https://www.uscis.gov/" target="_blank" rel="noreferrer">USCIS</a><span>·</span><a href="https://www.cbp.gov/" target="_blank" rel="noreferrer">CBP</a></div>
+        </footer>
+      </section>
+
+      <section id="dashboardView" class="dashboard hidden">
+        <aside class="agent-panel">
+          <div class="agent-title"><div class="agent-avatar">B</div><div><strong>Boricua Agent</strong><span><i></i> 行程规划中枢</span></div><button class="icon-button" id="collapseAgent" aria-label="收起对话">‹</button></div>
+          <div class="chat-thread" id="chatThread">
+            <div class="message agent-message"><span class="mini-avatar">B</span><div><p>行程已经准备好了。我优先保留了轻松节奏，并把需要提前锁定的项目放在合适日期。想调整的话直接说，比如“第二天换海滩”或“降低预算”。</p><small>刚刚</small></div></div>
+            <div class="quick-prompts" id="quickPrompts">
+              <button data-prompt="把第二天换成海滩">第二天换海滩</button>
+              <button data-prompt="帮我把人均预算降低 150 美元">降低预算</button>
+              <button data-prompt="生成出海打包清单">生成打包清单</button>
+            </div>
+          </div>
+          <form class="chat-composer" id="chatForm"><textarea id="chatInput" rows="1" placeholder="告诉我你想怎么调整…"></textarea><button type="submit" aria-label="发送">↑</button></form>
+          <p class="agent-disclaimer">内容为程序自动生成，可能出错，预订与身份信息请以官方渠道为准。</p>
+        </aside>
+
+        <div class="trip-workspace">
+          <div class="workspace-topbar">
+            <div><button class="back-link" id="backHome">← 新建行程</button><span class="workspace-divider"></span><span class="trip-label" id="tripLabel">纽约 → 波多黎各</span></div>
+            <div class="workspace-actions"><span class="live-badge">实时估算</span><button class="ghost-button" id="shareButton">分享</button><button class="dark-button" id="saveButton">♡ 保存行程</button></div>
+          </div>
+
+          <div class="trip-scroll">
+            <section class="trip-hero-card">
+              <div class="trip-hero-copy"><span class="season-label">YOUR CARIBBEAN ESCAPE</span><h1><span id="tripDaysTitle">5</span> 天，慢慢靠近加勒比海。</h1><p id="tripSummary">圣胡安的彩色街巷、雨林瀑布和一晚会发光的海，节奏舒展，但每一天都有记忆点。</p><div class="trip-meta"><span>📍 从 <b id="departureMeta">纽约</b> 出发</span><span>◷ <b id="dateMeta">10月9日–13日</b></span><span>♙ <b id="peopleMeta">2 人</b></span><span id="moonChip"></span></div></div>
+              <div class="trip-island-art"><div class="art-sun"></div><div class="art-land"></div><div class="art-water"></div><span class="art-plane">✈</span><span class="art-pin pin-one">1</span><span class="art-pin pin-two">3</span><span class="art-pin pin-three">5</span></div>
+            </section>
+
+            <section class="status-row">
+              <div class="status-card identity-card"><span class="status-icon">✓</span><div><strong>境内旅行提示</strong><p>波多黎各是美国领地。非公民应携带并核验个人身份证明与移民文件。</p></div><button id="identityDetails">查看说明</button></div>
+              <div class="status-card budget-card"><div><small>当前预估人均</small><strong id="budgetTop">$1,286</strong><span id="budgetStatus">在预算范围内</span></div><button data-tab-target="budget">查看明细 ↗</button></div>
+            </section>
+
+            <div id="warningBox"></div>
+
+            <nav class="trip-tabs" id="tripTabs" aria-label="行程功能">
+              <button class="active" data-tab="itinerary">行程安排</button>
+              <button data-tab="bookings">预订中心 <span class="count-pill" id="bookingCount">4</span></button>
+              <button data-tab="assistant">行中助手</button>
+              <button data-tab="budget">预算明细</button>
+            </nav>
+            <div id="tabContent"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div class="modal-backdrop hidden" id="plannerModal" role="dialog" aria-modal="true" aria-labelledby="plannerTitle">
+      <div class="planner-modal">
+        <div class="planner-progress"><span id="progressFill"></span></div>
+        <button class="modal-close" data-close-modal aria-label="关闭">×</button>
+        <div class="planner-left"><span class="kicker">TRIP BRIEF</span><h2 id="plannerTitle">先从哪里出发？</h2><p id="plannerHint">我会用出发地估算飞行时间和机票预算。</p><div class="planner-fact"><span>✦</span><p id="plannerFact">多数美国东海岸城市都有前往圣胡安的直飞航班。</p></div></div>
+        <div class="planner-right">
+          <form id="plannerForm">
+            <div class="question-step active" data-step="1">
+              <label for="departure">出发城市</label><div class="large-input"><span>⌖</span><input id="departure" name="departure" value="纽约" autocomplete="off" /><small>NYC</small></div>
+              <div class="suggestion-row"><button type="button" data-fill="纽约">纽约</button><button type="button" data-fill="洛杉矶">洛杉矶</button><button type="button" data-fill="波士顿">波士顿</button><button type="button" data-fill="芝加哥">芝加哥</button></div>
+            </div>
+            <div class="question-step" data-step="2"><label>什么时候出发？</label><div class="date-grid"><label><span>出发日期</span><input type="date" id="startDate" value="2026-10-09" /></label><label><span>返程日期</span><input type="date" id="endDate" value="2026-10-13" /></label></div><p class="field-tip">日期会影响月相、天气、项目库存与价格。</p></div>
+            <div class="question-step" data-step="3"><label>几个人一起旅行？</label><div class="counter-card"><button type="button" id="minusPeople">−</button><div><strong id="peopleCount">2</strong><span>位旅行者</span></div><button type="button" id="plusPeople">＋</button></div><div class="choice-row"><button type="button" class="choice active" data-party="朋友">朋友</button><button type="button" class="choice" data-party="情侣">情侣</button><button type="button" class="choice" data-party="独自">独自</button><button type="button" class="choice" data-party="家庭">家庭</button></div></div>
+            <div class="question-step" data-step="4"><label>人均预算大约多少？</label><div class="budget-display"><span>$</span><input type="number" id="budgetInput" value="1500" min="500" max="8000" step="100" /><small>USD / 人</small></div><input class="budget-range" type="range" id="budgetRange" min="500" max="4000" step="100" value="1500" /><div class="range-labels"><span>轻省 $500</span><span>舒适 $2,000</span><span>尽兴 $4,000+</span></div></div>
+            <div class="question-step" data-step="5"><label>这次更想怎么玩？</label><div class="preference-grid"><button type="button" class="preference active" data-pref="慢节奏"><span>🌴</span><strong>慢节奏</strong><small>留足发呆时间</small></button><button type="button" class="preference active" data-pref="自然探索"><span>🌿</span><strong>自然探索</strong><small>雨林与海滩</small></button><button type="button" class="preference" data-pref="跳岛浮潜"><span>🐠</span><strong>跳岛浮潜</strong><small>离岛与水上项目</small></button><button type="button" class="preference active" data-pref="在地文化"><span>🎨</span><strong>在地文化</strong><small>老城与本地餐厅</small></button><button type="button" class="preference" data-pref="夜间体验"><span>✨</span><strong>夜间体验</strong><small>生物湾与夜游</small></button><button type="button" class="preference" data-pref="拍照打卡"><span>📷</span><strong>拍照打卡</strong><small>高出片路线</small></button></div></div>
+            <div class="planner-controls"><button type="button" class="back-button invisible" id="plannerBack">← 上一步</button><span><b id="stepLabel">1</b> / 5</span><button type="button" class="primary-button" id="plannerNext">继续 →</button></div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-backdrop hidden" id="detailModal" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+      <div class="detail-modal"><button class="modal-close" data-close-detail aria-label="关闭">×</button><div id="detailModalContent"></div></div>
+    </div>
+
+    <div class="toast" id="toast" role="status"></div>
+    <script src="engine.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
