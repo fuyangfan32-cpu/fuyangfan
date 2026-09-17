@@ -82,9 +82,9 @@ test("极紧预算应如实提示超支而非伪造低价", () => {
     assert.ok(trip.meta.warnings.some((w) => w.includes("超出")), "应包含超支提示");
   }
 });
-test("预算富余时应自动升级酒店档位", () => {
+test("预算富余时保持舒适档不自动升级", () => {
   const trip = E.buildTrip({ ...BASE, budgetLimit: 3000, departure: "迈阿密" });
-  assert.strictEqual(trip.budget.tier.id, "premium");
+  assert.strictEqual(trip.budget.tier.id, "comfort");
 });
 test("降低预算编辑会真实改写预算并保留提示", () => {
   const trip = E.buildTrip(BASE);
