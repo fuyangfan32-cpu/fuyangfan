@@ -405,7 +405,12 @@
     const button = event.target.closest("[data-prompt]");
     if (button) assistantReply(button.dataset.prompt);
   });
-  $("#collapseAgent").addEventListener("click", () => showToast("移动端会自动收起对话面板"));
+  $("#collapseAgent").addEventListener("click", () => {
+    const panel = document.querySelector(".agent-panel");
+    if (!panel) return;
+    const collapsed = panel.classList.toggle("collapsed");
+    showToast(collapsed ? "对话面板已收起，再次点击顶部图标可展开" : "对话面板已展开");
+  });
   document.addEventListener("keydown", (event) => { if (event.key === "Escape") { closePlanner(); closeDetails(); } });
 
   /* ------------------------------------------------------------------ *
