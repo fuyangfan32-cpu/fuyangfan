@@ -446,6 +446,11 @@
       plan[di] = { ...ARCHETYPES["beach-easy"] };
       budget = compute(tier, foodKey);
     }
+    if (budget.total <= limit - 220 && tier.id === "comfort") {
+      tier = HOTEL_TIERS[2];
+      budget = compute(tier, foodKey);
+      warnings.push(`预算富余，酒店已升级为「${tier.name}」`);
+    }
     if (budget.total > limit * 1.02) {
       warnings.push(`已尽量压缩（机票与住宿属于刚性支出），仍超出预算约 $${budget.total - limit}；建议上调预算或缩短天数`);
     }
