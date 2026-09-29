@@ -352,7 +352,7 @@ def grounded_fallback(knowledge: list[dict[str, Any]], trip: TripContext | None)
     content = re.sub(r"\s+", " ", str(top.get("content", ""))).strip()
     if len(content) > 210:
         content = content[:207] + "…"
-    return f"根据知识库里的“{top.get('title')}”：{content} [1] 如果你告诉我更具体的日期或路线，我可以继续帮你做取舍。"
+    return f"根据知识库，{content} [1] 如果你告诉我更具体的日期或路线，我可以继续帮你做取舍。"
 
 
 async def persist_chat(session_id: str, request_data: ChatRequest, reply: str, sources: list[dict[str, Any]]) -> None:
