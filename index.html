@@ -178,8 +178,25 @@
             <div class="question-step" data-step="2"><label>什么时候出发？</label><div class="date-grid"><label><span>出发日期</span><input type="date" id="startDate" value="2026-10-09" /></label><label><span>返程日期</span><input type="date" id="endDate" value="2026-10-13" /></label></div><p class="field-tip">日期会影响月相、天气、项目库存与价格。</p></div>
             <div class="question-step" data-step="3"><label>几个人一起旅行？</label><div class="counter-card"><button type="button" id="minusPeople">−</button><div><strong id="peopleCount">2</strong><span>位旅行者</span></div><button type="button" id="plusPeople">＋</button></div><div class="choice-row"><button type="button" class="choice active" data-party="朋友">朋友</button><button type="button" class="choice" data-party="情侣">情侣</button><button type="button" class="choice" data-party="独自">独自</button><button type="button" class="choice" data-party="家庭">家庭</button></div></div>
             <div class="question-step" data-step="4"><label>人均预算大约多少？</label><div class="budget-display"><span>$</span><input type="number" id="budgetInput" value="1500" min="500" max="8000" step="100" /><small>USD / 人</small></div><input class="budget-range" type="range" id="budgetRange" min="500" max="4000" step="100" value="1500" /><div class="range-labels"><span>轻省 $500</span><span>舒适 $2,000</span><span>尽兴 $4,000+</span></div></div>
-            <div class="question-step" data-step="5"><label>这次更想怎么玩？</label><div class="preference-grid"><button type="button" class="preference active" data-pref="慢节奏"><span>🌴</span><strong>慢节奏</strong><small>留足发呆时间</small></button><button type="button" class="preference active" data-pref="自然探索"><span>🌿</span><strong>自然探索</strong><small>雨林与海滩</small></button><button type="button" class="preference" data-pref="跳岛浮潜"><span>🐠</span><strong>跳岛浮潜</strong><small>离岛与水上项目</small></button><button type="button" class="preference active" data-pref="在地文化"><span>🎨</span><strong>在地文化</strong><small>老城与本地餐厅</small></button><button type="button" class="preference" data-pref="夜间体验"><span>✨</span><strong>夜间体验</strong><small>生物湾与夜游</small></button><button type="button" class="preference" data-pref="拍照打卡"><span>📷</span><strong>拍照打卡</strong><small>高出片路线</small></button></div></div>
-            <div class="planner-controls"><button type="button" class="back-button invisible" id="plannerBack">← 上一步</button><span><b id="stepLabel">1</b> / 5</span><button type="button" class="primary-button" id="plannerNext">继续 →</button></div>
+            <div class="question-step" data-step="5">
+              <label>这次更想怎么玩？</label>
+              <p class="preference-instruction">玩法可以多选；请从中标出最多 3 个核心偏好，其余会作为次要偏好参与推荐。</p>
+              <div class="preference-grid">
+                <button type="button" class="preference" data-pref="雨林探索"><span>🌿</span><strong>雨林探索</strong><small>滑水、瀑布与绳索</small></button>
+                <button type="button" class="preference" data-pref="海湾浮潜"><span>🐠</span><strong>海湾浮潜</strong><small>离岛与水上项目</small></button>
+                <button type="button" class="preference" data-pref="夜间体验"><span>✨</span><strong>夜间体验</strong><small>发光生物湾与透明皮艇</small></button>
+                <button type="button" class="preference" data-pref="在地文化"><span>🎨</span><strong>在地文化</strong><small>古城堡与本地餐厅</small></button>
+                <button type="button" class="preference" data-pref="环岛漫游"><span>🚙</span><strong>环岛漫游</strong><small>山区探险与艺术古城</small></button>
+                <button type="button" class="preference" data-pref="海滩徒步"><span>🏝️</span><strong>海滩徒步</strong><small>白沙躺平与小径探险</small></button>
+              </div>
+              <div class="core-preference-picker" id="corePreferencePicker"><span>选择玩法后，可在这里调整核心优先级</span></div>
+            </div>
+            <div class="question-step route-choice-step" data-step="6">
+              <div class="route-selection-summary" id="routeSelectionSummary"></div>
+              <div class="route-option-grid" id="routeOptionGrid"></div>
+              <p class="route-footnote">路线会先校验天数与跨区成本；确认后才生成逐日行程，你仍可在工作台继续对话调整。</p>
+            </div>
+            <div class="planner-controls"><button type="button" class="back-button invisible" id="plannerBack">← 上一步</button><span id="stepCounter"><b id="stepLabel">1</b> / 5</span><button type="button" class="primary-button" id="plannerNext">继续 →</button></div>
           </form>
         </div>
       </div>

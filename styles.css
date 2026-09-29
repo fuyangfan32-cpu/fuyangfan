@@ -158,3 +158,47 @@ button { color: inherit; cursor: pointer; }
 .agent-thinking p span { animation: ragPulse 1.2s ease-in-out infinite; }
 .agent-thinking small { color: #677e7d; }
 @keyframes ragPulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+
+/* —— v0.2：玩法优先、核心偏好与路线确认 —— */
+.preference-instruction { margin: -6px 0 13px; color: #708485; font-size: 10px; line-height: 1.55; }
+.preference.core::before { content: "核心"; position: absolute; top: 9px; left: 9px; padding: 3px 6px; border-radius: 99px; background: #fff0c7; color: #785d1f; font-size: 7px; font-weight: 800; letter-spacing: .4px; }
+.core-preference-picker { margin-top: 13px; min-height: 56px; border: 1px dashed #b9cbc6; border-radius: 13px; padding: 10px 12px; background: rgba(255,255,255,.55); }
+.core-preference-picker > span { color: #809291; font-size: 9px; }
+.core-preference-picker > strong { display: block; margin-bottom: 7px; font-size: 9px; color: var(--ink); }
+.core-preference-picker > div { display: flex; flex-wrap: wrap; gap: 6px; }
+.core-preference-picker > small { display: block; margin-top: 7px; color: #849596; font-size: 8px; }
+.core-chip { border: 1px solid var(--line); border-radius: 99px; background: white; padding: 6px 9px; color: #6e8182; font-size: 8px; font-weight: 700; }
+.core-chip span { margin-right: 4px; color: #aeb9b5; }
+.core-chip.active { border-color: #e2b648; background: #fff7df; color: #715818; }
+.core-chip.active span { color: #e2a900; }
+.route-selection-summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; padding: 11px 13px; border-radius: 13px; background: #edf6f3; }
+.route-selection-summary > div { display: flex; flex-direction: column; gap: 4px; }
+.route-selection-summary span { color: var(--sea); font-size: 8px; font-weight: 800; letter-spacing: .8px; text-transform: uppercase; }
+.route-selection-summary strong { font-size: 10px; }
+.route-selection-summary small { color: #748889; font-size: 8px; }
+.route-selection-summary button { flex: 0 0 auto; border: 1px solid #b9d8cf; border-radius: 99px; background: white; padding: 6px 9px; color: var(--sea); font-size: 8px; font-weight: 700; }
+.route-option-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.route-option { min-height: 292px; border: 1px solid var(--line); border-radius: 17px; background: white; padding: 14px; text-align: left; transition: .2s ease; }
+.route-option:hover { transform: translateY(-2px); box-shadow: var(--soft-shadow); }
+.route-option.active { border: 2px solid var(--sea); background: #f2faf7; box-shadow: 0 10px 28px rgba(11,120,120,.11); }
+.route-option-head { display: flex; justify-content: space-between; align-items: center; }
+.route-option-head span { color: var(--coral); font-size: 8px; font-weight: 800; letter-spacing: .5px; }
+.route-option-head i { border-radius: 99px; background: #e8f5f0; color: var(--sea); padding: 4px 6px; font-size: 7px; font-style: normal; font-weight: 700; }
+.route-option h3 { margin: 13px 0 5px; font-size: 16px; }
+.route-path { display: block; color: var(--sea); font-size: 9px; line-height: 1.5; }
+.route-option > p { margin: 8px 0 11px; color: #718485; font-size: 8px; line-height: 1.5; }
+.route-option dl { margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.route-option dl div { padding-top: 7px; border-top: 1px solid #edf1ee; }
+.route-option dt { color: #849596; font-size: 7px; }
+.route-option dd { margin: 3px 0 0; color: var(--ink); font-size: 8px; line-height: 1.45; }
+.route-validation { display: block; margin-top: 10px; color: #477866; font-size: 7px; line-height: 1.45; }
+.route-validation.warn { color: #9a622c; }
+.route-footnote { margin: 10px 0 0; color: #829596; font-size: 8px; line-height: 1.5; }
+
+@media (max-width: 760px) {
+  .planner-modal { max-height: 96vh; }
+  .planner-right { min-height: 650px; }
+  .route-option-grid { grid-template-columns: 1fr; }
+  .route-option { min-height: auto; }
+  .route-choice-step { padding-bottom: 4px; }
+}

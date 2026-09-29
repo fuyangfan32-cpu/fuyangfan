@@ -235,17 +235,90 @@
         ["19:00", "海鲜晚餐", "视当日营业情况推荐", "餐厅"],
       ],
     },
+    "beach-hike": {
+      id: "beach-hike", name: "海滩与小径", tags: ["beach", "nature", "photo"],
+      title: "沿着海岸慢慢走", subtitle: "海岸小径 · 白沙停留 · 日落收尾", pace: "轻松",
+      cost: 0, effort: 2, drive: true, island: false, highlight: false, rainy: true,
+      note: "海岸步道遮阴有限，建议上午出发，并根据海况决定是否下水。",
+      items: [
+        ["08:30", "前往东海岸自然保护区", "避开正午高温，先完成海岸小径", "导航"],
+        ["10:00", "海岸小径徒步", "按体力选择短线，留意潮位与路面", ""],
+        ["13:00", "白沙海滩自由活动", "游泳、浮潜或在树荫下休息", ""],
+        ["17:00", "海边日落", "保留弹性，不追加准点集合项目", ""],
+      ],
+    },
+    ponce: {
+      id: "ponce", name: "Ponce 艺术古城", tags: ["culture", "food", "photo"],
+      title: "去南部读一座城市", subtitle: "建筑街区 · 艺术博物馆 · 本地餐厅", pace: "适中",
+      cost: 20, effort: 2, drive: true, island: false, highlight: true, rainy: false,
+      note: "圣胡安往返 Ponce 车程较长，更适合主岛环线或南部留宿，不建议和离岛日硬塞在短行程里。",
+      items: [
+        ["08:00", "出发前往 Ponce", "跨越中央山地，按实时路况预留 2 小时左右", "租车"],
+        ["10:30", "Plaza Las Delicias 建筑街区", "消防博物馆与历史建筑集中在步行范围内", ""],
+        ["13:00", "南部本地午餐", "选择当日营业的 criollo 餐厅", "餐厅"],
+        ["15:00", "艺术与城市文化", "按开放情况选择博物馆或历史宅邸", "项目"],
+        ["18:00", "南部留宿或继续环线", "避免疲劳夜驾返回圣胡安", "酒店"],
+      ],
+    },
+    "mountain-loop": {
+      id: "mountain-loop", name: "主岛山地环线", tags: ["nature", "culture", "food"],
+      title: "穿过山地去看另一面波多黎各", subtitle: "咖啡山谷 · 公路风景 · 小镇停留", pace: "适中",
+      cost: 38, effort: 2, drive: true, island: false, highlight: false, rainy: true,
+      note: "山区道路弯多，建议白天驾驶并减少同日跨区；这一天适合与 Ponce 串成主岛环线。",
+      items: [
+        ["08:30", "驶入中央山地", "根据天气与路况选择 Adjuntas 或 Cayey 方向", "租车"],
+        ["10:30", "咖啡庄园或山地小镇", "提前确认预约与营业日", "项目"],
+        ["13:00", "山间本地午餐", "用一顿 criollo 菜认识主岛内陆", "餐厅"],
+        ["16:00", "观景公路与小镇散步", "天黑前抵达下一住宿点", ""],
+      ],
+    },
   };
 
   // 偏好 → 可用日程模板（含权重）
   const PREF_TO_ARCHETYPES = {
-    慢节奏:   ["beach-easy", "east-coast", "old-town", "sailing"],
-    自然探索: ["rainforest", "east-coast", "camuy", "beach-easy"],
+    雨林探索: ["rainforest", "mountain-loop", "east-coast"],
+    海湾浮潜: ["culebra", "east-coast", "sailing"],
+    夜间体验: ["vieques", "biobay", "sailing"],
+    在地文化: ["old-town", "ponce", "food-day"],
+    环岛漫游: ["mountain-loop", "ponce", "rincon", "food-day"],
+    海滩徒步: ["beach-hike", "culebra", "east-coast", "beach-easy"],
+    // 兼容旧分享链接与已保存行程
+    慢节奏: ["beach-easy", "east-coast", "old-town", "sailing"],
+    自然探索: ["rainforest", "east-coast", "beach-hike", "beach-easy"],
     跳岛浮潜: ["culebra", "vieques", "sailing", "east-coast"],
-    在地文化: ["old-town", "food-day", "rincon", "sailing"],
-    夜间体验: ["biobay", "vieques", "sailing", "salsa-night"],
     拍照打卡: ["old-town", "rincon", "culebra", "sailing", "east-coast"],
   };
+
+  const ROUTES = [
+    {
+      id: "vieques-night", title: "雨林与星光海湾", path: "San Juan → El Yunque → Vieques",
+      tags: ["雨林探索", "夜间体验", "海滩徒步"], minDays: 5,
+      dayIds: ["old-town", "rainforest", "vieques", "beach-easy", "sailing"],
+      transport: "1 次东部陆路换乘 + 1 晚离岛", pace: "重点体验型",
+      sacrifice: "为 Vieques 夜宿和生物湾留时间，不再安排 Culebra 与南部 Ponce。",
+    },
+    {
+      id: "culebra-water", title: "白沙浮潜路线", path: "San Juan → Culebra",
+      tags: ["海湾浮潜", "海滩徒步", "雨林探索"], minDays: 4,
+      dayIds: ["old-town", "culebra", "rainforest", "beach-easy", "sailing"],
+      transport: "Ceiba 往返轮渡 + 早起跳岛", pace: "海岛优先型",
+      sacrifice: "保留 Flamenco Beach 与浮潜，不安排 Vieques 夜宿；生物湾可改为主岛夜游。",
+    },
+    {
+      id: "culture-loop", title: "南部文化环线", path: "San Juan → 中央山地 → Ponce",
+      tags: ["在地文化", "环岛漫游", "雨林探索"], minDays: 5,
+      dayIds: ["old-town", "mountain-loop", "ponce", "food-day", "rincon"],
+      transport: "建议连续租车 2–3 天", pace: "公路环线型",
+      sacrifice: "不进入离岛，换取 Ponce 建筑、山区与本地餐厅的完整体验。",
+    },
+    {
+      id: "sanjuan-base", title: "圣胡安东部轻松线", path: "San Juan → El Yunque / Fajardo",
+      tags: ["在地文化", "雨林探索", "夜间体验", "海滩徒步", "海湾浮潜"], minDays: 3,
+      dayIds: ["old-town", "rainforest", "biobay", "beach-hike", "sailing"],
+      transport: "圣胡安连住，东部一日往返", pace: "低换乘型",
+      sacrifice: "不跨去离岛或南部，减少搬酒店与轮渡不确定性。",
+    },
+  ];
 
   const PARTY_HINTS = {
     朋友: "朋友出行节奏偏快，重要项目尽量安排在上午，晚餐多留社交时间",
@@ -322,22 +395,66 @@
    * 行程编排
    * ------------------------------------------------------------------ */
 
+  function routeById(id) {
+    return ROUTES.find((route) => route.id === id) || null;
+  }
+
+  /** 根据核心/次要玩法、天数和预算给出两条可解释的地理路线。 */
+  function recommendRoutes(input) {
+    const dateInfo = parseDates(input.start, input.end);
+    const preferences = Array.isArray(input.preferences) ? input.preferences : [];
+    const core = Array.isArray(input.corePreferences) && input.corePreferences.length
+      ? input.corePreferences
+      : preferences.slice(0, 3);
+    const secondary = preferences.filter((pref) => !core.includes(pref));
+    const scored = ROUTES.map((route) => {
+      const coreMatches = core.filter((pref) => route.tags.includes(pref));
+      const secondaryMatches = secondary.filter((pref) => route.tags.includes(pref));
+      const shortfall = Math.max(0, route.minDays - dateInfo.days);
+      let score = coreMatches.length * 8 + secondaryMatches.length * 3 - shortfall * 7;
+      if (route.id === "sanjuan-base" && dateInfo.days <= 4) score += 6;
+      if (route.id !== "sanjuan-base" && dateInfo.days >= route.minDays) score += 2;
+      if (Number(input.budgetLimit) < 1000 && route.id === "sanjuan-base") score += 3;
+      const matched = [...coreMatches, ...secondaryMatches];
+      return {
+        ...route,
+        score,
+        feasible: shortfall === 0,
+        matchReason: matched.length
+          ? `匹配「${matched.slice(0, 3).join("、")}」${coreMatches.length ? "核心偏好" : "偏好"}`
+          : "用更少换乘保留调整空间",
+        validation: shortfall
+          ? `当前 ${dateInfo.days} 天偏紧，建议延长 ${shortfall} 天；若保持天数，将压缩为同区域替代。`
+          : `${dateInfo.days} 天可执行，并已避开双离岛或南部＋离岛的跨区冲突。`,
+      };
+    });
+    scored.sort((a, b) => b.score - a.score || Number(b.feasible) - Number(a.feasible));
+    return scored.slice(0, 2).map((route, index) => ({ ...route, recommended: index === 0 }));
+  }
+
   /** 根据偏好为“中间日”打分排序，选出 count 个不重复的日程 */
-  function pickMiddleDays(preferences, count, budgetPerPerson, moon) {
+  function pickMiddleDays(preferences, count, budgetPerPerson, moon, routeId, corePreferences) {
     if (count <= 0) return [];
-    const prefs = preferences.slice(0, 3);
+    const prefs = Array.isArray(preferences) ? preferences : [];
+    const core = Array.isArray(corePreferences) && corePreferences.length ? corePreferences : prefs.slice(0, 3);
+    const route = routeById(routeId);
+    if (route) {
+      const selected = route.dayIds.filter((id) => ARCHETYPES[id]).slice(0, count);
+      if (selected.length >= count) return selected;
+    }
     const scored = [];
     Object.keys(ARCHETYPES).forEach((id) => {
       const day = ARCHETYPES[id];
       if (id === "arrival" || id === "departure") return;
       let score = 0;
-      prefs.forEach((p, i) => {
+      prefs.forEach((p) => {
         const list = PREF_TO_ARCHETYPES[p] || [];
-        if (list.includes(id)) score += 4 - i;
+        if (list.includes(id)) score += core.includes(p) ? 5 : 2;
       });
+      if (route?.dayIds.includes(id)) score += 6 - Math.min(route.dayIds.indexOf(id), 4);
       // 夜间体验偏好：始终保留生物湾类日程
       if (prefs.includes("夜间体验") && (id === "biobay" || id === "vieques")) score += 5;
-      if (prefs.includes("跳岛浮潜") && (id === "culebra" || id === "vieques")) score += 3;
+      if ((prefs.includes("海湾浮潜") || prefs.includes("跳岛浮潜")) && (id === "culebra" || id === "vieques")) score += 3;
       if (prefs.includes("慢节奏") && id === "beach-easy") score += 2;
       if (day.cost > budgetPerPerson * 0.2) score -= 2; // 预算敏感
       if (moon.bright && id === "biobay") score -= 3;   // 满月窗口降权
@@ -350,9 +467,12 @@
 
     // 偏好签名日保底：自然探索→雨林，夜间体验→生物湾，跳岛→Culebra
     const musts = [];
-    if (prefs.includes("自然探索")) musts.push("rainforest");
+    if (prefs.includes("雨林探索") || prefs.includes("自然探索")) musts.push("rainforest");
     if (prefs.includes("夜间体验")) musts.push("biobay");
-    if (prefs.includes("跳岛浮潜")) musts.push("culebra");
+    if (prefs.includes("海湾浮潜") || prefs.includes("跳岛浮潜")) musts.push("culebra");
+    if (prefs.includes("环岛漫游")) musts.push("mountain-loop");
+    if (prefs.includes("在地文化")) musts.push(routeId === "culture-loop" ? "ponce" : "old-town");
+    if (prefs.includes("海滩徒步")) musts.push("beach-hike");
     musts.slice(0, count).forEach((id) => { chosen.push(id); usedRegions.push(islandKind(id)); });
 
     const tagsOverlap = (id) => {
@@ -466,7 +586,8 @@
     const budgetLimit = clamp(Number(input.budgetLimit) || 1500, 400, 10000);
 
     // 1) 编排中间日
-    const middleIds = pickMiddleDays(input.preferences, days - 2, budgetLimit, moon);
+    const route = routeById(input.routeId) || recommendRoutes(input)[0] || null;
+    const middleIds = pickMiddleDays(input.preferences || [], days - 2, budgetLimit, moon, route?.id, input.corePreferences);
     const plan = [
       ARCHETYPES.arrival,
       ...middleIds.map(archetypeById),
@@ -478,6 +599,9 @@
     const planFinal = fit.plan;
     const budget = fit.budget;
     const warnings = fit.warnings;
+    if (route && days < route.minDays) {
+      warnings.unshift(`路线校验：${route.title} 建议至少 ${route.minDays} 天；当前为 ${days} 天，已生成紧凑版，请考虑延长行程。`);
+    }
 
     // 3) 汇总文案
     const summary = summarize(input, planFinal, dateInfo, moon);
@@ -487,7 +611,7 @@
 
     const trip = {
       input: { ...input, budgetLimit },
-      meta: { dateLabel: dateInfo.label, days, moon, warnings, summary, partyHint: PARTY_HINTS[input.party] || "" },
+      meta: { dateLabel: dateInfo.label, days, moon, warnings, summary, partyHint: PARTY_HINTS[input.party] || "", route },
       days: planFinal,
       budget,
       bookings,
@@ -497,11 +621,12 @@
   }
 
   function summarize(input, plan, dateInfo, moon) {
-    const prefs = input.preferences.slice(0, 3).join("、") || "轻松旅行";
+    const prefs = (input.corePreferences?.length ? input.corePreferences : input.preferences || []).slice(0, 3).join("、") || "轻松旅行";
     const highlights = plan.filter((d) => d.highlight || d.island || d.id === "rainforest").map((d) => d.name).slice(0, 3);
     const highlightText = highlights.length ? `，其中 ${highlights.join("、")} 会是最有记忆点的部分` : "";
     const moonText = moon.bioBayScore !== "中等" ? `，月相判断生物湾体验${moon.bioBayScore}` : "";
-    return `${dateInfo.label}，${input.people} 人从 ${input.departure} 出发，${prefs}是这条路线的主线${highlightText}${moonText}；行程按天给出时间与交通安排，重要项目提前锁定，其余保留弹性。`;
+    const routeText = input.routeId && routeById(input.routeId) ? `，采用「${routeById(input.routeId).path}」` : "";
+    return `${dateInfo.label}，${input.people} 人从 ${input.departure} 出发，${prefs}是这条路线的主线${routeText}${highlightText}${moonText}；行程按天给出时间与交通安排，重要项目提前锁定，其余保留弹性。`;
   }
 
   /* ------------------------------------------------------------------ *
@@ -512,6 +637,11 @@
     const island = plan.some((d) => d.island);
     const hasRainforest = plan.some((d) => d.id === "rainforest");
     const nights = Math.max(1, daysCount || parseDates(input.start, input.end).days) - 1;
+    const stayTitle = plan.some((d) => d.id === "vieques")
+      ? `San Juan + Vieques 共 ${nights} 晚`
+      : plan.some((d) => d.id === "ponce")
+      ? `San Juan + Ponce 共 ${nights} 晚`
+      : `Condado 连住 ${nights} 晚`;
 
     const books = [];
     books.push({
@@ -528,7 +658,7 @@
     });
     books.push({
       type: "酒店",
-      title: `Condado 连住 ${Math.max(1, nights)} 晚`,
+      title: stayTitle,
       desc: `${budget.tier.name} · ${budget.tier.note}`,
       price: budget.hotel,
       state: "3 个选项",
@@ -897,6 +1027,7 @@
 
   return {
     buildTrip,
+    recommendRoutes,
     applyEdit,
     answer,
     lunarPhase,
@@ -913,6 +1044,7 @@
     HOTEL_TIERS,
     FLIGHT_TABLE,
     PREF_TO_ARCHETYPES,
+    ROUTES,
     PARTY_HINTS,
   };
 });

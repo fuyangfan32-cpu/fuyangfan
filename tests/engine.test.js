@@ -43,6 +43,28 @@ test("月龄应落在 [0, 29.53) 区间", () => {
 });
 
 console.log("行程编排");
+test("玩法偏好应先生成两条可解释路线，而不是直接生成行程", () => {
+  const routes = E.recommendRoutes({ ...BASE, preferences: ["雨林探索", "夜间体验", "在地文化", "海滩徒步"], corePreferences: ["雨林探索", "夜间体验", "在地文化"] });
+  assert.strictEqual(routes.length, 2);
+  assert.ok(routes[0].path && routes[0].matchReason && routes[0].sacrifice);
+  assert.strictEqual(routes[0].recommended, true);
+});
+test("雨林探索与夜间体验优先推荐 Vieques 路线", () => {
+  const routes = E.recommendRoutes({ ...BASE, preferences: ["雨林探索", "夜间体验"], corePreferences: ["雨林探索", "夜间体验"] });
+  assert.strictEqual(routes[0].id, "vieques-night");
+});
+test("海湾浮潜与海滩徒步优先推荐 Culebra 路线", () => {
+  const routes = E.recommendRoutes({ ...BASE, preferences: ["海湾浮潜", "海滩徒步"], corePreferences: ["海湾浮潜", "海滩徒步"] });
+  assert.strictEqual(routes[0].id, "culebra-water");
+});
+test("在地文化与环岛漫游优先推荐南部文化环线", () => {
+  const routes = E.recommendRoutes({ ...BASE, preferences: ["在地文化", "环岛漫游"], corePreferences: ["在地文化", "环岛漫游"] });
+  assert.strictEqual(routes[0].id, "culture-loop");
+});
+test("短天数路线会给出延长提示", () => {
+  const routes = E.recommendRoutes({ ...BASE, start: "2026-10-09", end: "2026-10-11", preferences: ["夜间体验"], corePreferences: ["夜间体验"] });
+  assert.ok(routes.some((route) => !route.feasible && route.validation.includes("延长")));
+});
 test("5 天行程 = 抵达 + 3 中间日 + 返程，且包含首尾", () => {
   const trip = E.buildTrip(BASE);
   assert.strictEqual(trip.days.length, 5);
@@ -53,6 +75,16 @@ test("5 天行程 = 抵达 + 3 中间日 + 返程，且包含首尾", () => {
 test("夜间体验偏好应包含生物湾类日程", () => {
   const trip = E.buildTrip({ ...BASE, preferences: ["夜间体验"] });
   assert.ok(trip.days.some((d) => d.id === "biobay" || d.id === "vieques"), "应含 biobay 或 vieques");
+});
+test("确认 Culebra 路线后应生成 Culebra 行程且不混入 Vieques", () => {
+  const trip = E.buildTrip({ ...BASE, preferences: ["海湾浮潜", "海滩徒步"], corePreferences: ["海湾浮潜", "海滩徒步"], routeId: "culebra-water" });
+  assert.ok(trip.days.some((d) => d.id === "culebra"));
+  assert.ok(!trip.days.some((d) => d.id === "vieques"));
+  assert.strictEqual(trip.meta.route.id, "culebra-water");
+});
+test("4 天 Culebra 路线也必须保留跳岛签名日", () => {
+  const trip = E.buildTrip({ ...BASE, start: "2026-10-09", end: "2026-10-12", preferences: ["海湾浮潜"], corePreferences: ["海湾浮潜"], routeId: "culebra-water" });
+  assert.ok(trip.days.some((d) => d.id === "culebra"));
 });
 test("相邻日程不应出现两个离岛日", () => {
   const trip = E.buildTrip({ ...BASE, preferences: ["跳岛浮潜", "拍照打卡"], budgetLimit: 2500 });

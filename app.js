@@ -23,7 +23,10 @@
     step: 1,
     people: 2,
     party: "朋友",
-    preferences: new Set(["慢节奏", "自然探索", "在地文化"]),
+    preferences: new Set(),
+    corePreferences: new Set(),
+    routeOptions: [],
+    selectedRouteId: null,
     trip: null,
     activeTab: "itinerary",
     activeDay: 1,
@@ -62,11 +65,15 @@
     2: ["把日期交给我。", "日期会影响机票价格、月相和项目可订状态。", "波多黎各全年温暖，但天气和海况仍会改变实际安排。"],
     3: ["谁和你一起去？", "人数与出行关系会改变房型、交通和行程节奏。", "离岛交通座位有限，多人出行更需要提前锁定。"],
     4: ["舒服地花多少钱？", "先确定人均上限，我会主动做取舍。", "预算是区间估算，最终金额以预订渠道结算页为准。"],
-    5: ["选出旅行关键词。", "最多选 3 个，我会用它们决定路线优先级。", "不要追求景点全覆盖，波多黎各更适合留一点即兴空间。"],
+    5: ["先选玩法，再决定去哪里。", "玩法可以多选，请标出最多 3 个核心偏好。", "核心偏好决定路线主线，其余偏好会在不绕路的前提下尽量保留。"],
+    6: ["两条路线，先做一次取舍。", "我已结合玩法、天数和交通成本推荐地理路线。", "先确认路线骨架，再生成逐日行程，能减少为了塞景点而反复横跳。"],
   };
 
   function openPlanner() {
     state.step = 1;
+    state.routeOptions = [];
+    state.selectedRouteId = null;
+    renderPreferenceState();
     updatePlannerStep();
     $("#plannerModal").classList.remove("hidden");
     document.body.style.overflow = "hidden";
@@ -83,10 +90,11 @@
     $("#plannerTitle").textContent = title;
     $("#plannerHint").textContent = hint;
     $("#plannerFact").textContent = fact;
-    $("#stepLabel").textContent = state.step;
-    $("#progressFill").style.width = `${state.step * 20}%`;
+    $("#stepLabel").textContent = state.step === 6 ? "路线建议" : state.step;
+    $("#stepCounter").lastChild.textContent = state.step === 6 ? "" : " / 5";
+    $("#progressFill").style.width = `${Math.min(state.step, 5) * 20}%`;
     $("#plannerBack").classList.toggle("invisible", state.step === 1);
-    $("#plannerNext").textContent = state.step === 5 ? "生成行程 ✦" : "继续 →";
+    $("#plannerNext").textContent = state.step === 5 ? "查看路线建议 →" : state.step === 6 ? "采用这条路线 ✦" : "继续 →";
   }
 
   function collectInput() {
@@ -98,7 +106,45 @@
       party: state.party,
       budgetLimit: Number($("#budgetInput").value) || 1500,
       preferences: [...state.preferences],
+      corePreferences: [...state.corePreferences],
+      routeId: state.selectedRouteId,
     };
+  }
+
+  function renderPreferenceState() {
+    $$('[data-pref]').forEach((button) => {
+      const selected = state.preferences.has(button.dataset.pref);
+      button.classList.toggle("active", selected);
+      button.classList.toggle("core", state.corePreferences.has(button.dataset.pref));
+    });
+    const picker = $("#corePreferencePicker");
+    if (!picker) return;
+    if (!state.preferences.size) {
+      picker.innerHTML = "<span>选择玩法后，可在这里调整核心优先级</span>";
+      return;
+    }
+    picker.innerHTML = `<strong>核心偏好 ${state.corePreferences.size}/3</strong><div>${[...state.preferences].map((pref) => `<button type="button" class="core-chip ${state.corePreferences.has(pref) ? "active" : ""}" data-core-pref="${escapeHtml(pref)}"><span>★</span>${escapeHtml(pref)}</button>`).join("")}</div><small>点星标切换核心；未加星的选项仍会作为次要偏好。</small>`;
+  }
+
+  function renderRouteOptions() {
+    const input = collectInput();
+    state.routeOptions = E.recommendRoutes(input);
+    state.selectedRouteId = state.routeOptions[0]?.id || null;
+    const core = [...state.corePreferences];
+    const secondary = [...state.preferences].filter((pref) => !state.corePreferences.has(pref));
+    $("#routeSelectionSummary").innerHTML = `<div><span>偏好摘要</span><strong>核心：${escapeHtml(core.join("、") || "未指定")}</strong>${secondary.length ? `<small>次要：${escapeHtml(secondary.join("、"))}</small>` : ""}</div><button type="button" data-edit-dates>修改日期</button>`;
+    $("#routeOptionGrid").innerHTML = state.routeOptions.map((route, index) => `<button type="button" class="route-option ${index === 0 ? "active" : ""}" data-route-id="${route.id}"><div class="route-option-head"><span>${route.recommended ? "推荐路线" : "备选路线"}</span><i>${route.feasible ? "天数合适" : "建议延长"}</i></div><h3>${escapeHtml(route.title)}</h3><strong class="route-path">${escapeHtml(route.path)}</strong><p>${escapeHtml(route.matchReason)} · ${escapeHtml(route.pace)}</p><dl><div><dt>交通代价</dt><dd>${escapeHtml(route.transport)}</dd></div><div><dt>主动取舍</dt><dd>${escapeHtml(route.sacrifice)}</dd></div></dl><small class="route-validation ${route.feasible ? "" : "warn"}">${escapeHtml(route.validation)}</small></button>`).join("");
+  }
+
+  function showRouteRecommendations() {
+    const input = collectInput();
+    if (!input.start || !input.end || new Date(input.end) < new Date(input.start)) return showToast("请先确认有效的出发和返程日期");
+    if (!state.preferences.size) return showToast("请至少选择 1 个感兴趣的玩法");
+    const requiredCore = Math.min(3, state.preferences.size);
+    if (state.corePreferences.size < requiredCore) return showToast(`请标出 ${requiredCore} 个核心偏好`);
+    renderRouteOptions();
+    state.step = 6;
+    updatePlannerStep();
   }
 
   function generateTrip(input, opts = {}) {
@@ -135,6 +181,9 @@
     $("#tripLabel").textContent = `${trip.input.departure} → 波多黎各`;
     $("#bookingCount").textContent = trip.bookings.length;
     $("#moonChip").innerHTML = moonChipHtml(trip);
+    const route = trip.meta.route;
+    const firstMessage = $("#chatThread .agent-message p");
+    if (firstMessage && route) firstMessage.textContent = `路线已经准备好了：${route.path}。我按你的核心偏好先做了地理取舍，再生成逐日安排；想继续调整，直接告诉我哪一天或哪个体验。`;
     renderWarnings(trip);
     renderActiveTab();
   }
@@ -291,9 +340,12 @@
       days: state.trip.meta?.days,
       people: input.people,
       budget_limit: input.budgetLimit,
-      destinations: state.trip.days?.map((d) => d.id) || [],
+      destinations: state.trip.meta?.route?.path ? state.trip.meta.route.path.split(" → ") : state.trip.days?.map((d) => d.id) || [],
       preferences: input.preferences || [],
-      constraints: [],
+      constraints: [
+        ...(input.corePreferences || []).map((pref) => `核心偏好：${pref}`),
+        state.trip.meta?.route?.sacrifice ? `路线取舍：${state.trip.meta.route.sacrifice}` : "",
+      ].filter(Boolean),
     };
   }
 
@@ -445,7 +497,7 @@
 
   $$(".start-planning").forEach((button) => button.addEventListener("click", openPlanner));
   $("#previewButton").addEventListener("click", () => {
-    const input = { departure: "纽约", start: "2026-10-09", end: "2026-10-13", people: 2, party: "朋友", budgetLimit: 1500, preferences: ["慢节奏", "自然探索", "在地文化"] };
+    const input = { departure: "纽约", start: "2026-10-09", end: "2026-10-13", people: 2, party: "朋友", budgetLimit: 1500, preferences: ["雨林探索", "夜间体验", "在地文化"], corePreferences: ["雨林探索", "夜间体验", "在地文化"], routeId: "vieques-night" };
     generateTrip(input, { instant: true, label: "正在生成示例行程…" });
   });
   $("#historyButton").addEventListener("click", () => showToast("暂无历史行程，先生成第一份吧"));
@@ -453,8 +505,13 @@
   $$("[data-scroll]").forEach((button) => button.addEventListener("click", () => $(`#${button.dataset.scroll}`)?.scrollIntoView({ behavior: "smooth" })));
   $$("[data-close-modal]").forEach((button) => button.addEventListener("click", closePlanner));
   $("#plannerModal").addEventListener("click", (event) => { if (event.target === $("#plannerModal")) closePlanner(); });
-  $("#plannerNext").addEventListener("click", () => { if (state.step < 5) { state.step += 1; updatePlannerStep(); } else generateTrip(collectInput()); });
-  $("#plannerBack").addEventListener("click", () => { if (state.step > 1) { state.step -= 1; updatePlannerStep(); } });
+  $("#plannerNext").addEventListener("click", () => {
+    if (state.step < 5) { state.step += 1; updatePlannerStep(); }
+    else if (state.step === 5) showRouteRecommendations();
+    else if (!state.selectedRouteId) showToast("请先选择一条路线");
+    else generateTrip(collectInput());
+  });
+  $("#plannerBack").addEventListener("click", () => { if (state.step > 1) { state.step = state.step === 6 ? 5 : state.step - 1; updatePlannerStep(); } });
   $$("[data-fill]").forEach((button) => button.addEventListener("click", () => { $("#departure").value = button.dataset.fill; }));
   $("#minusPeople").addEventListener("click", () => { state.people = Math.max(1, state.people - 1); $("#peopleCount").textContent = state.people; });
   $("#plusPeople").addEventListener("click", () => { state.people = Math.min(8, state.people + 1); $("#peopleCount").textContent = state.people; });
@@ -463,12 +520,38 @@
   $("#budgetInput").addEventListener("input", (event) => { $("#budgetRange").value = Math.min(4000, Math.max(500, event.target.value || 500)); });
   $$("[data-pref]").forEach((button) => button.addEventListener("click", () => {
     const pref = button.dataset.pref;
-    if (state.preferences.has(pref)) { state.preferences.delete(pref); button.classList.remove("active"); }
-    else if (state.preferences.size < 3) { state.preferences.add(pref); button.classList.add("active"); }
-    else showToast("最多选择 3 个旅行关键词");
+    if (state.preferences.has(pref)) {
+      state.preferences.delete(pref);
+      state.corePreferences.delete(pref);
+    } else {
+      state.preferences.add(pref);
+      if (state.corePreferences.size < 3) state.corePreferences.add(pref);
+    }
+    renderPreferenceState();
   }));
 
   document.addEventListener("click", (event) => {
+    const editDates = event.target.closest("[data-edit-dates]");
+    if (editDates) {
+      state.step = 2;
+      updatePlannerStep();
+      return;
+    }
+    const corePref = event.target.closest("[data-core-pref]");
+    if (corePref) {
+      const pref = corePref.dataset.corePref;
+      if (state.corePreferences.has(pref)) state.corePreferences.delete(pref);
+      else if (state.corePreferences.size < 3) state.corePreferences.add(pref);
+      else return showToast("核心偏好最多 3 个；先取消一个星标再更换");
+      renderPreferenceState();
+      return;
+    }
+    const routeOption = event.target.closest("[data-route-id]");
+    if (routeOption) {
+      state.selectedRouteId = routeOption.dataset.routeId;
+      $$("[data-route-id]").forEach((button) => button.classList.toggle("active", button.dataset.routeId === state.selectedRouteId));
+      return;
+    }
     const day = event.target.closest("[data-day]");
     if (day) { state.activeDay = Number(day.dataset.day); renderActiveTab(); return; }
     const book = event.target.closest("[data-book]");
