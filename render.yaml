@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: boricua-agent-api
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: MODEL_PROVIDER
+        value: cloud
+      - key: CLOUD_API_BASE
+        value: https://api.openai.com/v1
+      - key: CLOUD_API_KEY
+        sync: false
+      - key: CLOUD_MODEL
+        value: gpt-4o-mini
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: ALLOWED_ORIGINS
+        value: https://fuyangfan32-cpu.github.io

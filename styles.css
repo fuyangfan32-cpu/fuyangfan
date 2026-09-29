@@ -152,3 +152,9 @@ button { color: inherit; cursor: pointer; }
   .footer-links { margin-left: 0; }
   .warning-strip span { font-size: 9px; }
 }
+
+/* —— 后端 RAG 思考消息（增量追加） —— */
+.agent-thinking p { color: #8fb0af; }
+.agent-thinking p span { animation: ragPulse 1.2s ease-in-out infinite; }
+.agent-thinking small { color: #677e7d; }
+@keyframes ragPulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }

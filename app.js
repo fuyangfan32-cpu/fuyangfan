@@ -29,6 +29,13 @@
     activeDay: 1,
     bookingFilter: "全部",
     saved: localStorage.getItem("boricua-saved") === "true",
+    backend: {
+      sessionId: localStorage.getItem("boricua-session-id") || (crypto.randomUUID ? crypto.randomUUID() : `session-${Date.now()}`),
+      connected: false,
+      provider: null,
+      knowledgeMode: null,
+    },
+    dialog: { history: [] },
   };
 
   const $ = (selector, root = document) => root.querySelector(selector);
@@ -254,12 +261,119 @@
     return "";
   }
 
-  function assistantReply(text) {
+  /* ------------------------------------------------------------------ *
+   * 后端 RAG 接入（FastAPI /api/chat）
+   * 未配置后端时自动降级到前端规则引擎，不影响现有功能
+   * ------------------------------------------------------------------ */
+
+  function appendThinkingMessage() {
+    const id = `thinking-${Date.now()}`;
+    const thread = $("#chatThread");
+    thread.insertAdjacentHTML("beforeend", `<div class="message agent-message agent-thinking" id="${id}"><span class="mini-avatar">B</span><div><p>正在检索实测知识库<span>…</span></p><small>RAG 检索中</small></div></div>`);
+    thread.scrollTop = thread.scrollHeight;
+    return id;
+  }
+
+  function getApiBase() {
+    const configured = window.BORICUA_CONFIG?.API_URL?.trim();
+    if (configured) return configured.replace(/\/$/, "");
+    if (["localhost", "127.0.0.1"].includes(location.hostname)) return "http://127.0.0.1:8000";
+    return "";
+  }
+
+  function serializeTripForAgent() {
+    if (!state.trip) return null;
+    const input = state.trip.input || {};
+    return {
+      departure: input.departure,
+      start: input.start,
+      end: input.end,
+      days: state.trip.meta?.days,
+      people: input.people,
+      budget_limit: input.budgetLimit,
+      destinations: state.trip.days?.map((d) => d.id) || [],
+      preferences: input.preferences || [],
+      constraints: [],
+    };
+  }
+
+  async function checkAgentHealth() {
+    const badge = $("#agentStatus");
+    const apiBase = getApiBase();
+    if (!apiBase) {
+      if (badge) badge.textContent = "DEMO · 待接后端";
+      return;
+    }
+    try {
+      const response = await fetch(`${apiBase}/health`, { signal: AbortSignal.timeout(4500) });
+      if (!response.ok) throw new Error("health check failed");
+      const data = await response.json();
+      state.backend.connected = true;
+      state.backend.provider = data.default_provider;
+      state.backend.knowledgeMode = data.supabase_configured ? "supabase" : "local-json";
+      if (badge) badge.textContent = data.supabase_configured ? "AI · RAG 已连接" : "AI · 本地知识已连接";
+    } catch {
+      state.backend.connected = false;
+      if (badge) badge.textContent = "DEMO · 后端离线";
+    }
+  }
+
+  async function askAgentBackend(text) {
+    const apiBase = getApiBase();
+    if (!apiBase) return null;
+    const response = await fetch(`${apiBase}/api/chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message: text,
+        session_id: state.backend.sessionId,
+        history: state.dialog.history.slice(-8),
+        trip: serializeTripForAgent(),
+        mode: window.BORICUA_CONFIG?.MODE || "auto",
+      }),
+      signal: AbortSignal.timeout(65000),
+    });
+    if (!response.ok) throw new Error(`Agent API ${response.status}`);
+    const data = await response.json();
+    state.backend.connected = true;
+    state.backend.provider = data.provider;
+    state.backend.knowledgeMode = data.knowledge_mode;
+    if (data.session_id) {
+      state.backend.sessionId = data.session_id;
+      localStorage.setItem("boricua-session-id", data.session_id);
+    }
+    const sourceCount = data.sources?.length || 0;
+    const sourceType = data.knowledge_mode?.startsWith("supabase") ? "Supabase RAG" : "本地知识库";
+    return {
+      reply: data.reply,
+      meta: `${sourceType} · ${sourceCount} 条参考 · ${data.provider}`,
+    };
+  }
+
+  async function assistantReply(text) {
     const prompt = String(text || "").trim();
     if (!prompt || !state.trip) return;
     appendMessage("user", prompt);
+    state.dialog.history.push({ role: "user", text: prompt });
     const result = E.answer(prompt, state.trip);
     let reply = result.reply;
+    let cards = result.cards;
+
+    // 纯咨询类问题（无行程编辑），尝试后端 RAG 增强回答；失败自动降级到前端规则引擎
+    if (!result.edits || !result.edits.length) {
+      const thinkingId = appendThinkingMessage();
+      try {
+        const backendReply = await askAgentBackend(prompt);
+        if (backendReply) {
+          reply = backendReply.reply;
+          cards = null;
+        }
+      } catch (e) {
+        // 后端不可用，保持前端规则引擎结果
+      }
+      document.getElementById(thinkingId)?.remove();
+    }
+
     setTimeout(() => {
       if (result.edits && result.edits.length) {
         result.edits.forEach((edit) => {
@@ -280,7 +394,8 @@
           state.activeDay = Math.min(state.activeDay, trip.days.length);
         }
       }
-      appendMessage("agent", reply, result.cards);
+      appendMessage("agent", reply, cards);
+      state.dialog.history.push({ role: "assistant", text: reply });
     }, 550);
   }
 
@@ -421,4 +536,7 @@
   if (!loadSharedTrip() && state.trip) {
     renderActiveTab();
   }
+
+  // 检测后端 RAG 服务可用性并更新状态 badge
+  checkAgentHealth();
 })();
